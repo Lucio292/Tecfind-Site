@@ -1,0 +1,191 @@
+/* ===== CORES PERSONALIZADAS POR SERVIÇO ===== */
+
+/* Encanamento - Azul */
+.service-plumb {
+    border-left: 5px solid #3498db !important;
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(52, 152, 219, 0.02) 100%) !important;
+}
+
+.service-plumb h3 {
+    color: #3498db !important;
+}
+
+.service-plumb .service-icon::before {
+    content: '🔧';
+}
+
+/* Limpeza - Verde */
+.service-cleaning {
+    border-left: 5px solid #27ae60 !important;
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.05) 0%, rgba(39, 174, 96, 0.02) 100%) !important;
+}
+
+.service-cleaning h3 {
+    color: #27ae60 !important;
+}
+
+.service-cleaning .service-icon::before {
+    content: '🧹';
+}
+
+/* Educação - Laranja */
+.service-education {
+    border-left: 5px solid #f39c12 !important;
+    background: linear-gradient(135deg, rgba(243, 156, 18, 0.05) 0%, rgba(243, 156, 18, 0.02) 100%) !important;
+}
+
+.service-education h3 {
+    color: #f39c12 !important;
+}
+
+.service-education .service-icon::before {
+    content: '📚';
+}
+
+/* Eletricidade - Amarelo */
+.service-electrical {
+    border-left: 5px solid #f1c40f !important;
+    background: linear-gradient(135deg, rgba(241, 196, 15, 0.05) 0%, rgba(241, 196, 15, 0.02) 100%) !important;
+}
+
+.service-electrical h3 {
+    color: #e8b708 !important;
+}
+
+.service-electrical .service-icon::before {
+    content: '⚡';
+}
+
+/* Alvenaria - Cinza */
+.service-masonry {
+    border-left: 5px solid #95a5a6 !important;
+    background: linear-gradient(135deg, rgba(149, 165, 166, 0.05) 0%, rgba(149, 165, 166, 0.02) 100%) !important;
+}
+
+.service-masonry h3 {
+    color: #7f8c8d !important;
+}
+
+.service-masonry .service-icon::before {
+    content: '🧱';
+}
+
+/* Pintura - Cor */
+.service-painting {
+    border-left: 5px solid #e74c3c !important;
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.05) 0%, rgba(231, 76, 60, 0.02) 100%) !important;
+}
+
+.service-painting h3 {
+    color: #e74c3c !important;
+}
+
+.service-painting .service-icon::before {
+    content: '🎨';
+}
+
+/* Jardinagem - Verde Claro */
+.service-gardening {
+    border-left: 5px solid #1abc9c !important;
+    background: linear-gradient(135deg, rgba(26, 188, 156, 0.05) 0%, rgba(26, 188, 156, 0.02) 100%) !important;
+}
+
+.service-gardening h3 {
+    color: #1abc9c !important;
+}
+
+.service-gardening .service-icon::before {
+    content: '🌱';
+}
+
+/* Reparo/Manutenção - Vermelho */
+.service-repair {
+    border-left: 5px solid #c0392b !important;
+    background: linear-gradient(135deg, rgba(192, 57, 43, 0.05) 0%, rgba(192, 57, 43, 0.02) 100%) !important;
+}
+
+.service-repair h3 {
+    color: #c0392b !important;
+}
+
+.service-repair .service-icon::before {
+    content: '🔨';
+}
+
+/* Limpeza de Carpetes - Roxo */
+.service-carpet {
+    border-left: 5px solid #8e44ad !important;
+    background: linear-gradient(135deg, rgba(142, 68, 173, 0.05) 0%, rgba(142, 68, 173, 0.02) 100%) !important;
+}
+
+.service-carpet h3 {
+    color: #8e44ad !important;
+}
+
+.service-carpet .service-icon::before {
+    content: '🧺';
+}
+
+/* Delivery/Entrega - Azul Claro */
+.service-delivery {
+    border-left: 5px solid #2980b9 !important;
+    background: linear-gradient(135deg, rgba(41, 128, 185, 0.05) 0%, rgba(41, 128, 185, 0.02) 100%) !important;
+}
+
+.service-delivery h3 {
+    color: #2980b9 !important;
+}
+
+.service-delivery .service-icon::before {
+    content: '🚚';
+}
+
+/* Beleza/Cabelo - Rosa */
+.service-beauty {
+    border-left: 5px solid #c2185b !important;
+    background: linear-gradient(135deg, rgba(194, 24, 91, 0.05) 0%, rgba(194, 24, 91, 0.02) 100%) !important;
+}
+
+.service-beauty h3 {
+    color: #c2185b !important;
+}
+
+.service-beauty .service-icon::before {
+    content: '✂️';
+}
+
+/* Consultorias/Negócios - Azul Escuro */
+.service-consulting {
+    border-left: 5px solid #00509e !important;
+    background: linear-gradient(135deg, rgba(0, 80, 158, 0.05) 0%, rgba(0, 80, 158, 0.02) 100%) !important;
+}
+
+.service-consulting h3 {
+    color: #00509e !important;
+}
+
+.service-consulting .service-icon::before {
+    content: '💼';
+}
+
+/* Geral/Outros - Cinza Médio */
+.service-other {
+    border-left: 5px solid #34495e !important;
+    background: linear-gradient(135deg, rgba(52, 73, 94, 0.05) 0%, rgba(52, 73, 94, 0.02) 100%) !important;
+}
+
+.service-other h3 {
+    color: #34495e !important;
+}
+
+.service-other .service-icon::before {
+    content: '💡';
+}
+
+/* Service Icon Styling */
+.service-icon {
+    display: inline-block;
+    font-size: 1.8em;
+    margin-right: 10px;
+    vertical-align: middle;
+}

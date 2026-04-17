@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tecfind - Encontre ou Ofereça Serviços Perto de Você</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="service-colors.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+    <!-- Google Maps API (substitua YOUR_GOOGLE_MAPS_KEY pela sua chave real) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_KEY&callback=initMap" async defer></script>
+</head>
+<body>
+    <header>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; align-items: stretch; height: 100%; min-height: 380px; padding: 0; margin: 0; width: 100%;">
+            <!-- Logo à esquerda -->
+            <div style="display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; overflow: hidden; background: transparent;">
+                <img src="images/tecfind-logo.png" alt="Tecfind Logo" style="height: 100%; width: 100%; object-fit: cover; object-position: center;">
+            </div>
+            
+            <!-- Página de serviços ao centro -->
+            <div style="display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; overflow: hidden; background: transparent;">
+                <img src="images/tecfind-servicos.png" alt="Tecfind Serviços" style="height: 100%; width: 100%; object-fit: cover; object-position: center;">
+            </div>
+            
+            <!-- Roteador 3D à direita -->
+            <div style="display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; overflow: hidden; background: transparent;">
+                <img src="images/tecfind-roteador.png" alt="Roteador WiFi Profissional" style="height: 100%; width: 100%; object-fit: cover; object-position: center;">
+            </div>
+        </div>
+        
+        <!-- User Info (abaixo das imagens) -->
+        <div style="background: linear-gradient(135deg, rgba(0,0,0,0.2), rgba(0,0,0,0.1)); padding: 20px; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; border-top: 2px solid rgba(255,255,255,0.2);">
+            <div id="user-info" style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <!-- Google Login -->
+                <button id="login-btn" style="background: #4285F4; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.95em; font-weight: 600; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);" onclick="loginWithGoogle();">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline;">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="white"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="white"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="white"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="white"/>
+                    </svg>
+                    Entrar com Google
+                </button>
+                
+                <!-- WhatsApp Login -->
+                <button style="background: #25D366; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.95em; font-weight: 600; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);" onclick="loginWithWhatsApp();">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="display: inline;">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-5.031 1.378c-1.536.925-2.882 2.292-3.915 3.982C2.359 13.607 2 15.739 2 17.968c0 .992.113 1.99.333 2.966l1.575-5.902c-.088-.823-.133-1.679-.133-2.554 0-1.621.315-3.178.94-4.637.625-1.46 1.51-2.764 2.663-3.865 1.153-1.1 2.527-1.946 4.041-2.41 1.514-.463 3.113-.696 4.787-.696 1.388 0 2.747.172 4.05.514"/>
+                    </svg>
+                    Entrar com WhatsApp
+                </button>
+                
+                <span id="user-name" style="color: white; font-weight: 500;"></span>
+                <img id="user-avatar" src="" alt="Avatar" width="40" height="40" style="border-radius: 50%; display: none;">
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <button id="btn-categorias">🎯 Categorias</button>
+        <button id="btn-prestador">👨‍🔧 Cadastrar como Prestador</button>
+        <button id="btn-cliente">👨‍💼 Cadastrar como Cliente</button>
+        <button id="btn-buscar">🔍 Buscar Serviços</button>
+        <button id="btn-meus-servicos">📬 Minhas Solicitações</button>
+    </nav>
+
+    <main>
+        <!-- Seção: Categorias de Serviços Freelance -->
+        <section id="categorias" class="section" style="display: none;">
+            <h2>🎯 Categorias de Serviços Freelance</h2>
+            <p style="text-align: center; margin-bottom: 40px;">Escolha a categoria de serviço que você procura ou oferece</p>
+            
+            <div class="categorias-grid">
+                <!-- Tecnologia & TI -->
+                <div class="categoria-card" onclick="selecionarCategoria('tecnologia')">
+                    <img src="https://via.placeholder.com/200x150/667eea/ffffff?text=Tecnologia+TI" alt="Tecnologia & TI" style="width: 100%; height: 150px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                    <div class="categoria-info">
+                        <h3>💻 Tecnologia & TI</h3>
+                        <p>Desenvolvimento, redes, suporte técnico</p>
+                    </div>
+                </div>
+
+                <!-- Construção & Reforma -->
+                <div class="categoria-card" onclick="selecionarCategoria('construcao')">
+                    <img src="https://via.placeholder.com/200x150/e74c3c/ffffff?text=Construção" alt="Construção" style="width: 100%; height: 150px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                    <div class="categoria-info">
+                        <h3>🏗️ Construção & Reforma</h3>
+                        <p>Pedreiro, encanador, eletricista</p>
+                    </div>
+                </div>
+
+                <!-- Limpeza & Higiene -->
+                <div class="categoria-card" onclick="selecionarCategoria('limpeza')">
+                    <img src="https://via.placeholder.com/200x150/27ae60/ffffff?text=Limpeza" alt="Limpeza" style="width: 100%; height: 150px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                    <div class="categoria-info">
+                        <h3>🧹 Limpeza & Higiene</h3>
+                        <p>Faxina, limpeza profissional</p>
+                    </div>
+                </div>
+
+                <!-- Educação & Consultoria -->
+                <div class="categoria-card" onclick="selecionarCategoria('educacao')">
+                    <img src="https://via.placeholder.com/200x150/f39c12/ffffff?text=Educação" alt="Educação" style="width: 100%; height: 150px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                    <div class="categoria-info">
+                        <h3>📚 Educação & Consultoria</h3>
+                        <p>Aulas, treinamentos, palestras</p>
+                    </div>
+                </div>
+
+                <!-- Beleza & Wellness -->
+                <div class="categoria-card" onclick="selecionarCategoria('beleza')">
+                    <img src="https://via.placeholder.com/200x150/e91e63/ffffff?text=Beleza" alt="Beleza" style="width: 100%; height: 150px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                    <div class="categoria-info">
+                        <h3>💅 Beleza & Wellness</h3>
+                        <p>Cabelo, manicure, massagem</p>
+                    </div>
+                </div>
+
+                <!-- Logística & Entrega -->
+                <div class="categoria-card" onclick="selecionarCategoria('logistica')">
+                    <img src="https://via.placeholder.com/200x150/3498db/ffffff?text=Logística" alt="Logística" style="width: 100%; height: 150px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                    <div class="categoria-info">
+                        <h3>🚚 Logística & Entrega</h3>
+                        <p>Entrega, mudança, transporte</p>
+                    </div>
+                </div>
+
+                <!-- Paisagismo & Natureza -->
+                <div class="categoria-card" onclick="selecionarCategoria('paisagismo')">
+                    <img src="https://via.placeholder.com/200x150/16a085/ffffff?text=Paisagismo" alt="Paisagismo" style="width: 100%; height: 150px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                    <div class="categoria-info">
+                        <h3>🌿 Paisagismo & Natureza</h3>
+                        <p>Jardinagem, paisagismo</p>
+                    </div>
+                </div>
+
+                <!-- Reparo & Manutenção -->
+                <div class="categoria-card" onclick="selecionarCategoria('reparo')">
+                    <img src="https://via.placeholder.com/200x150/34495e/ffffff?text=Reparo" alt="Reparo" style="width: 100%; height: 150px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                    <div class="categoria-info">
+                        <h3>🔧 Reparo & Manutenção</h3>
+                        <p>Mecânica, reparo, manutenção</p>
+                    </div>
+                </div>
+
+                <!-- Design & Criatividade -->
+                <div class="categoria-card" onclick="selecionarCategoria('design')">
+                    <img src="https://via.placeholder.com/200x150/9b59b6/ffffff?text=Design" alt="Design" style="width: 100%; height: 150px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                    <div class="categoria-info">
+                        <h3>🎨 Design & Criatividade</h3>
+                        <p>Gráfico, web, fotografia</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Seção: Login / Perfil -->
+        <section id="login-section" class="section">
+            <h2>🔐 Bem-vindo ao Tecfind</h2>
+            <p style="font-size: 1.1em; text-align: center; margin: 30px 0;">
+                Faça login com sua conta do Google para começar a oferecer ou buscar serviços próximos a você.
+            </p>
+            <div style="text-align: center; margin-top: 30px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+                    <div style="padding: 20px; background: linear-gradient(135deg, #667eea15, #764ba215); border-radius: 12px;">
+                        <h3 style="color: #667eea; margin-bottom: 10px;">👨‍🔧 Para Prestadores</h3>
+                        <p>Ofereça seus serviços, receba solicitações de clientes próximos e ganhe dinheiro.</p>
+                    </div>
+                    <div style="padding: 20px; background: linear-gradient(135deg, #f5576c15, #f5576c15); border-radius: 12px;">
+                        <h3 style="color: #f5576c; margin-bottom: 10px;">👨‍💼 Para Clientes</h3>
+                        <p>Busque profissionais qualificados próximos, compare avaliações e contrate pelo WhatsApp.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Galeria de Serviços de Tecnologia -->
+            <div class="image-gallery">
+                <div class="gallery-item">
+                    <img src="images/servidor-rede.jpg" alt="Servidor de Rede" onerror="this.src='https://via.placeholder.com/400x250/667eea/ffffff?text=Servidor+de+Rede'">
+                    <div class="gallery-item-text">
+                        <h3>🖥️ Serviços de TI</h3>
+                        <p>Infraestrutura, redes e setup de servidores profissionais.</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="images/router-wifi.jpg" alt="Router WiFi" onerror="this.src='https://via.placeholder.com/400x250/764ba2/ffffff?text=Router+WiFi'">
+                    <div class="gallery-item-text">
+                        <h3>📡 Conectividade</h3>
+                        <p>Instalação e manutenção de redes WiFi de alta performance.</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="images/camera-seguranca.jpg" alt="Câmera de Segurança" onerror="this.src='https://via.placeholder.com/400x250/f5576c/ffffff?text=Segurança+CCTV'">
+                    <div class="gallery-item-text">
+                        <h3>🎥 Segurança</h3>
+                        <p>Sistemas de vigilância e monitoramento profissional.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção: Cadastro Prestador -->
+        <section id="cadastro-prestador" class="section">
+            <h2>👨‍🔧 Cadastre seu Serviço Profissional</h2>
+            <p>Defina sua localização no mapa e comece a receber solicitações de clientes próximos.</p>
+            <form id="prestador-form">
+                <input type="text" id="servico-prestador" placeholder="Seu serviço (ex: encanador, faxineiro, professor de violão, eletricista)" required>
+                <input type="text" id="descricao-prestador" placeholder="Descrição/Experiência (ex: 10 anos de experiência, atendo zona sul, 5 estrelas)" required>
+                <input type="tel" id="telefone-prestador" placeholder="WhatsApp (opcional - ex: 11999999999)">
+                <button type="submit">✨ Salvar Meu Perfil</button>
+            </form>
+            
+            <!-- Imagem inspirativa de serviços -->
+            <div style="text-align: center; margin: 30px 0;">
+                <img src="images/servidor-rede.jpg" alt="Prestadores Profissionais" 
+                     style="max-width: 100%; height: auto; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-height: 300px; object-fit: cover;" 
+                     onerror="this.src='https://via.placeholder.com/600x300/764ba2/ffffff?text=Infraestrutura+Profissional'">
+            </div>
+            
+            <div id="map-prestador" style="height: 300px; margin-top: 20px; border-radius: 12px; border: 2px solid #e8ecf1;"></div>
+            <p><small>📍 Arraste o marcador no mapa para definir sua localização exata</small></p>
+        </section>
+
+        <!-- Seção: Cadastro Cliente -->
+        <section id="cadastro-cliente" class="section">
+            <h2>👨‍💼 Procurando um Serviço?</h2>
+            <p>Informe qual serviço você precisa e encontre profissionais qualificados próximos de você.</p>
+            <form id="cliente-form">
+                <input type="text" id="servico-desejado" placeholder="Serviço que você precisa (ex: conserto de pia, limpeza residencial, aula de inglês)" required>
+                <input type="text" id="localizacao-cliente" placeholder="Seu bairro ou endereço (ex: Vila Madalena, SP)" required>
+                <button type="submit">🚀 Encontrar Profissionais</button>
+            </form>
+            
+            <!-- Imagem inspirativa de segurança e confiança -->
+            <div style="text-align: center; margin: 30px 0;">
+                <img src="images/camera-seguranca.jpg" alt="Encontre Profissionais" 
+                     style="max-width: 100%; height: auto; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-height: 300px; object-fit: cover;" 
+                     onerror="this.src='https://via.placeholder.com/600x300/e74c3c/ffffff?text=Segurança+e+Confiança'">
+            </div>
+            
+            <div id="map-cliente" style="height: 300px; margin-top: 20px; border-radius: 12px; border: 2px solid #e8ecf1;"></div>
+            <p><small>📍 Arraste o marcador no mapa para definir sua localização exata</small></p>
+        </section>
+
+        <!-- Seção: Buscar Serviços -->
+        <section id="buscar" class="section">
+            <h2>🔍 Buscar Profissionais Próximos</h2>
+            <p>Ative sua localização para descobrir os melhores prestadores ao seu redor (até 10 km de distância):</p>
+            <button id="get-location" style="margin: 20px 0;">📍 Usar Minha Localização Agora</button>
+            
+            <!-- Imagem inspirativa de conectividade -->
+            <div style="text-align: center; margin: 30px 0;">
+                <img src="images/router-wifi.jpg" alt="Busca de Profissionais" 
+                     style="max-width: 100%; height: auto; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-height: 300px; object-fit: cover;" 
+                     onerror="this.src='https://via.placeholder.com/600x300/667eea/ffffff?text=Profissionais+Próximos'">
+            </div>
+            
+            <div id="resultado-busca" class="results"></div>
+        </section>
+
+        <!-- Seção: Meus Serviços (para prestadores verem solicitações) -->
+        <section id="meus-servicos" class="section">
+            <h2>📬 Solicitações de Serviço Recebidas</h2>
+            <p>Quando um cliente buscar por seu serviço, você verá aqui a solicitação em tempo real. Responda rápido para garantir a oportunidade! 🚀</p>
+            
+            <!-- Imagem inspirativa de oportunidades -->
+            <div style="text-align: center; margin: 30px 0;">
+                <img src="images/servidor-rede.jpg" alt="Suas Oportunidades" 
+                     style="max-width: 100%; height: auto; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-height: 300px; object-fit: cover;" 
+                     onerror="this.src='https://via.placeholder.com/600x300/27ae60/ffffff?text=Suas+Oportunidades+Aguardam'">
+            </div>
+            
+            <div id="solicitacoes-list"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 Tecfind | Conectamos profissionais com clientes qualificados | <a href="#" id="logout-btn">🚪 Sair</a></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
