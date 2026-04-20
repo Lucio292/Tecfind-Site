@@ -45,9 +45,14 @@ git config --global user.name $GitName
 Write-Host "${GREEN}✓ Git configurado!${RESET}"
 
 # Definir pastas
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$OriginalTecfindPath = $ScriptDir
 $DesktopPath = [Environment]::GetFolderPath("Desktop")
-$OriginalTecfindPath = Join-Path $DesktopPath "Tecfind"
-$TecfindRepoPath = Join-Path $DesktopPath "tecfind"
+
+# Extrair nome do repositório da URL fornecida
+$cleanUrl = $GitHubURL.TrimEnd('/')
+$repoName = if ($cleanUrl -match "/([^/]+?)(\.git)?$") { $Matches[1] } elseif ($cleanUrl -match ":([^:]+?)(\.git)?$") { $Matches[1] } else { "tecfind" }
+$TecfindRepoPath = Join-Path $DesktopPath $repoName
 
 # Verificar se pasta original existe
 if (-not (Test-Path $OriginalTecfindPath)) {
@@ -82,7 +87,7 @@ $filesToCopy = @(
     "style.css",
     "script.js",
     "service-colors.css",
-    "initializer-servidor.bat",
+    "iniciar-servidor.bat",
     "server.py",
     "images"
 )
@@ -111,16 +116,24 @@ Write-Host "${GREEN}✓ Arquivos adicionados!${RESET}"
 
 # Fazer commit
 Write-Host "`n${YELLOW}▶ Fazendo commit...${RESET}"
-git commit -m "Deployment Tecfind - Pronto para produção"
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "${RED}✗ Erro ao fazer commit!${RESET}"
-    exit 1
+if (git diff --cached --quiet) {
+    Write-Host "${YELLOW}Nenhuma mudança para commitar.${RESET}"
+} else {
+    git commit -m "Deployment Tecfind - Pronto para produção"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "${RED}✗ Erro ao fazer commit!${RESET}"
+        exit 1
+    }
+    Write-Host "${GREEN}✓ Commit realizado!${RESET}"
 }
-Write-Host "${GREEN}✓ Commit realizado!${RESET}"
+
+# Detectar branch atual para push
+$branch = git branch --show-current
+if (-not $branch) { $branch = "main" }
 
 # Fazer push
 Write-Host "`n${YELLOW}▶ Enviando para GitHub (git push)...${RESET}"
-git push origin main
+git push origin $branch
 if ($LASTEXITCODE -ne 0) {
     Write-Host "${RED}✗ Erro ao fazer push!${RESET}"
     Write-Host "Possíveis soluções:"
